@@ -47,6 +47,8 @@ Description of available options:
   --aws-secret-key=VALUE      Specifies the AWS secret key to use to sign the request.
   --aws-iam-role=VALUE        Specifies the IAM role name to provide AWS credentials.
 
+  --namespace=VALUE	Specifies the target CloudWatch namesapce. Defaults to 'System/Linux'.
+
   --from-cron  Specifies that this script is running from cron.
   --verify     Checks configuration and prepares a remote call.
   --verbose    Displays details of what the script is doing.
@@ -155,6 +157,7 @@ my $argv_size = @ARGV;
     'aws-secret-key:s' => \$aws_secret_key,
     'enable-compression' => \$enable_compression,
     'aws-iam-role:s' => \$aws_iam_role
+	'namespace' => \$cw_namesapce
     );
 
 }
@@ -359,9 +362,13 @@ if ($auto_scaling)
   }
 }
 
+if (!defined($cw_namespace)) {
+	$cw_namespace = 'System/Linux'
+}
+
 my %params = ();
 $params{'Action'} = 'PutMetricData';
-$params{'Namespace'} = 'System/Linux';
+$params{'Namespace'} = $cw_namespace;
 
 # avoid a storm of calls at the beginning of a minute
 if ($from_cron) {
